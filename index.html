@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Todo List</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: aquamarine; /* Background diubah menjadi aquamarine */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 400px; /* Set a fixed width for better alignment */
+        }
+        .input-group {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        input[type="text"], input[type="date"] {
+            padding: 10px;
+            margin: 10px 5px 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            flex-grow: 1;
+        }
+        button {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .add-task {
+            background-color: #007bff;
+            color: white;
+        }
+        .delete-all {
+            background-color: #dc3545;
+            color: white;
+        }
+        .task-list {
+            margin-top: 20px;
+            text-align: center; /* Teks diatur ke tengah */
+        }
+        .task-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 5px 0;
+        }
+        .completed {
+            text-decoration: line-through;
+            color: gray;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Todo List</h1>
+        <div class="input-group">
+            <input type="text" id="taskInput" placeholder="Add a new task">
+            <input type="date" id="dateInput">
+            <button class="add-task" onclick="addTask()">+</button>
+        </div>
+        <div>
+            <button onclick="showCompleted()">Show Completed</button>
+            <button onclick="showAll()">Show All</button>
+        </div>
+        <div class="task-list" id="taskList">
+            <h2>Tasks</h2>
+            <p id="emptyMessage">Task is Empty!</p>
+        </div>
+        <button class="delete-all" onclick="deleteAllTasks()">Delete All</button>
+        <footer style="margin-top: 30px; font-size: 1rem; color: #007bff;">
+            <span>🌸 Made with love by novaaa 🌸</span>
+        </footer>
+    </div>
+
+    <script>
+        let tasks = []; // Array untuk menyimpan tugas
+
+        function addTask() {
+            const taskInput = document.getElementById('taskInput');
+            const dateInput = document.getElementById('dateInput');
+            const emptyMessage = document.getElementById('emptyMessage');
+
+            if (taskInput.value.trim() === '') {
+                alert('Please enter a task.');
+                return;
+            }
+
+            const task = {
+                content: taskInput.value,
+                date: dateInput.value || 'No date',
+                completed: false
+            };
+            tasks.push(task); // Menambahkan tugas ke array
+            displayTasks(); // Tampilkan semua tugas
+
+            // Clear inputs
+            taskInput.value = '';
+            dateInput.value = '';
+
+            // Hide empty message
+            emptyMessage.style.display = 'none';
+        }
+
+        function displayTasks(completedFilter = null) {
+            const taskList = document.getElementById('taskList');
+            taskList.innerHTML = '<h2>Tasks</h2>'; // Reset daftar tugas
+            const emptyMessage = document.getElementById('emptyMessage');
+
+            tasks.forEach((task, index) => {
+                if (completedFilter === null || task.completed === completedFilter) {
+                    const taskItem = document.createElement('div');
+                    taskItem.className = 'task-item';
+
+                    const taskContent = document.createElement('span');
+                    taskContent.textContent = `${task.content} - ${task.date}`;
+                    if (task.completed) taskContent.classList.add('completed');
+                    taskItem.appendChild(taskContent);
+
+                    const completeButton = document.createElement('button');
+                    completeButton.textContent = 'Complete';
+                    completeButton.onclick = function() {
+                        task.completed = true;
+                        displayTasks(); // Tampilkan ulang setelah menandai selesai
+                    };
+
+                    const undoButton = document.createElement('button');
+                    undoButton.textContent = 'Undo';
+                    undoButton.style.display = task.completed ? 'inline-block' : 'none';
+                    undoButton.onclick = function() {
+                        task.completed = false;
+                        displayTasks(); // Tampilkan ulang setelah mengembalikan
+                    };
+
+                    const deleteButton = document.createElement('button');
+                    deleteButton.textContent = 'Delete';
+                    deleteButton.onclick = function() {
+                        tasks.splice(index, 1); // Hapus tugas dari array
+                        displayTasks(); // Tampilkan ulang setelah menghapus
+                    };
+
+                    taskItem.appendChild(completeButton);
+                    taskItem.appendChild(undoButton);
+                    taskItem.appendChild(deleteButton);
+                    taskList.appendChild(taskItem);
+                }
+            });
+
+            if (taskList.childElementCount <= 1) { // Hanya header present
+                emptyMessage.style.display = 'block';
+            } else {
+                emptyMessage.style.display = 'none';
+            }
+        }
+
+        function showCompleted() {
+            displayTasks(true); // Tampilkan hanya tugas yang selesai
+        }
+
+        function showAll() {
+            displayTasks(); // Tampilkan semua tugas
+        }
+
+        function deleteAllTasks() {
+            tasks = []; // Kosongkan array tugas
+            displayTasks(); // Tampilkan ulang setelah menghapus semua
+        }
+    </script>
+</body>
+</html>
